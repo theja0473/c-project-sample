@@ -11,7 +11,7 @@ RUN         apt-get update \
                     git \
                     curl \
                     vim \
-                    vim-gnome \
+                    gcc \
                 && apt-get install -y cmake=3.5.1-1ubuntu3 \
                 && apt-get install -y \
                     gcc-4.9 g++-4.9 gcc-4.9-base \
