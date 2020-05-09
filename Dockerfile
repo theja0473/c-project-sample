@@ -15,5 +15,4 @@ RUN         apt-get update \
                     cmake \
                     g++
 COPY C-Project /
-CMD ["cd C-Project; make"]
-
+CMD ["cd C-Project; make && ./hellomake"]
