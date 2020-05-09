@@ -1,6 +1,6 @@
-FROM alpine
+FROM ubuntu 
 #COPY helloworld.sh /
-RUN apk add build-base /
+RUN apt install gcc make build-utils -y /
 COPY C-Project /
 CMD ["cd C-Project; make"]
 
