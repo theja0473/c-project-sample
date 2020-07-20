@@ -20,6 +20,7 @@ pipeline {
                 println "BRANCH_NAME is ${env.BRANCH_NAME}"
                 println "GIT_AUTHOR_NAME is ${env.GIT_AUTHOR_NAME}"
                 println "NODE_NAME is ${env.NODE_NAME}"
+                sh "mv ${workspace}/DOCKERFILE ${workspace}/Dockerfile"
             }
         }
         stage('Build Docker'){
