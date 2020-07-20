@@ -2,7 +2,7 @@ pipeline {
     agent { label 'rpi' }
     environment{
           Micro_var = 'theja_0473'
-          python_exe_path = "\/usr\/bin\/python"
+          python_exe_path = "/usr/bin/python"
     }
     stages {
         stage('Initial') {
