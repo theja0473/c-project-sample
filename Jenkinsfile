@@ -3,6 +3,9 @@ pipeline {
     environment{
           Micro_var = 'theja_0473'
           python_exe_path = "/usr/bin/python"
+          registry = "theja0473/docker-test"
+          registryCredential = 'dockerhub'
+          dockerImage = ''
     }
     stages {
         stage('Initial') {
@@ -19,9 +22,34 @@ pipeline {
                 println "NODE_NAME is ${env.NODE_NAME}"
             }
         }
-        stage('Build'){
-            steps {
+        stage('Build Docker'){
+        /*    steps {
                 echo 'Build Job'
+                dockerfile {
+                        filename 'Dockerfile'
+                        dir 'build'
+                        label "${dockerImage}"
+                        additionalBuildArgs  '--build-arg version=1.0.0'
+                    }
+            }*/
+            steps{
+                script {
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                }
+            }
+        }
+        stage('Deploy DockerHub'){
+            steps{
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                    dockerImage.push()
+                    }
+                }
+            }
+        }
+        stage('Remove Unused docker image') {
+            steps{
+                sh "docker rmi $registry:$BUILD_NUMBER"
             }
         }
     }
