@@ -3,7 +3,7 @@ pipeline {
     environment{
           Micro_var = 'theja_0473'
           python_exe_path = "/usr/bin/python"
-          registry = "theja0473/docker-test"
+          registry = "theja0473/confluence_image"
           registryCredential = 'dockerhub'
           dockerImage = ''
           Build_Status = false
