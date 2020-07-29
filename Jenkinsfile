@@ -36,30 +36,31 @@ pipeline {
                     }
             }*/
             steps{
-                try{
-                    script {
+                script{
+                    try {
                         dockerImage = docker.build registry + ":$BUILD_NUMBER"
                     }
-                }catch (err){
-                    echo err.getMessage()
-                    echo "Error while building Job but continue"
-                    env.Build_Status = true;
+                    catch (err){
+                        echo err.getMessage()
+                        echo "Error while building Job but continue"
+                        env.Build_Status = true;
+                    }
                 }
             }
         }
         stage('Deploy DockerHub'){
-            try{
-                steps{
-                    script {
+            steps{
+                script{
+                    try {
                         docker.withRegistry( '', registryCredential ) {
-                        dockerImage.push()
+                            dockerImage.push()
                         }
+                    }catch(err) {
+                        echo err.getMessage()
+                        echo "Builld Failed So, No Docker Image Existed"
                     }
                 }
-            } catch(err) {
-                echo err.getMessage()
-                echo "Builld Failed So, No Docker Image Existed"
-            }
+             }
         }
         stage('Remove Unused docker image') {
             steps{
@@ -72,8 +73,8 @@ pipeline {
             }
         }
     }
-    post { 
-        always { 
+    post {
+        always {
             if (env.Build_Status){
                 echo 'I will always run after build!'
                 println "Build_Status is ${env.Build_Status}"
