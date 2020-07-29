@@ -77,7 +77,7 @@ pipeline {
     }
     post {
         always {
-            step{
+            steps{
                 if (${env.Build_Status}){
                     echo 'I will always run after build!'
                     println "Build_Status is ${env.Build_Status}"
