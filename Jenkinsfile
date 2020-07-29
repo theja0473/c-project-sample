@@ -6,6 +6,7 @@ pipeline {
           registry = "theja0473/docker-test"
           registryCredential = 'dockerhub'
           dockerImage = ''
+          Build_Status = false
     }
     stages {
         stage('Initial') {
@@ -20,6 +21,7 @@ pipeline {
                 println "BRANCH_NAME is ${env.BRANCH_NAME}"
                 println "GIT_AUTHOR_NAME is ${env.GIT_AUTHOR_NAME}"
                 println "NODE_NAME is ${env.NODE_NAME}"
+                println "Initailly build status is ${env.Build_Status}"
                 sh "mv ${workspace}/DOCKERFILE ${workspace}/Dockerfile"
             }
         }
@@ -34,29 +36,50 @@ pipeline {
                     }
             }*/
             steps{
-                script {
-                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                try{
+                    script {
+                        dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                    }
+                }catch (err){
+                    echo err.getMessage()
+                    echo "Error while building Job but continue"
+                    env.Build_Status = true;
                 }
             }
         }
         stage('Deploy DockerHub'){
-            steps{
-                script {
-                    docker.withRegistry( '', registryCredential ) {
-                    dockerImage.push()
+            try{
+                steps{
+                    script {
+                        docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push()
+                        }
                     }
                 }
+            } catch(err) {
+                echo err.getMessage()
+                echo "Builld Failed So, No Docker Image Existed"
             }
         }
         stage('Remove Unused docker image') {
             steps{
-                sh "docker rmi $registry:$BUILD_NUMBER"
+                try{
+                    sh "docker rmi $registry:$BUILD_NUMBER"
+                } catch (err) {
+                    echo err.getMessage()
+                    echo "Error detected, but we will continue."
+                }
             }
         }
     }
     post { 
         always { 
-            echo 'I will always run after build!'
+            if (env.Build_Status){
+                echo 'I will always run after build!'
+                println "Build_Status is ${env.Build_Status}"
+            }else{
+                println "Build_Status is ${env.Build_Status}"
+            }
         }
     }
 }
