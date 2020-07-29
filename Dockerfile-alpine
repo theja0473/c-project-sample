@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=adoptopenjdk:11-hotspot
+ARG BASE_IMAGE=adoptopenjdk/openjdk8:alpine
 FROM $BASE_IMAGE
 
 ENV RUN_USER                                        confluence
@@ -19,20 +19,19 @@ EXPOSE 8091
 CMD ["/entrypoint.py"]
 ENTRYPOINT ["/sbin/tini", "--"]
 
-RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends fontconfig python3 python3-jinja2 \
-    && apt-get clean autoclean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache ca-certificates wget curl openssh bash procps openssl perl ttf-dejavu tini python3 py3-jinja2
 
-ARG TINI_VERSION=v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /sbin/tini
-RUN chmod +x /sbin/tini
+# Workaround for AdoptOpenJDK Alpine fontconfig bug
+RUN ln -s /usr/lib/libfontconfig.so.1 /usr/lib/libfontconfig.so \
+    && ln -s /lib/libuuid.so.1 /usr/lib/libuuid.so.1 \
+    && ln -s /lib/libc.musl-x86_64.so.1 /usr/lib/libc.musl-x86_64.so.1
+ENV LD_LIBRARY_PATH /usr/lib
 
 ARG CONFLUENCE_VERSION
 ARG DOWNLOAD_URL=https://product-downloads.atlassian.com/software/confluence/downloads/atlassian-confluence-${CONFLUENCE_VERSION}.tar.gz
 
-RUN groupadd --gid ${RUN_GID} ${RUN_GROUP} \
-    && useradd --uid ${RUN_UID} --gid ${RUN_GID} --home-dir ${CONFLUENCE_HOME} --shell /bin/bash ${RUN_USER} \
-    && echo PATH=$PATH > /etc/environment \
+RUN addgroup -g ${RUN_GID} ${RUN_GROUP} \
+    && adduser -u ${RUN_UID} -G ${RUN_GROUP} -h ${CONFLUENCE_HOME} -s /bin/bash -D ${RUN_USER} \
     \
     && mkdir -p                                     ${CONFLUENCE_INSTALL_DIR} \
     && curl -L --silent                             ${DOWNLOAD_URL} | tar -xz --strip-components=1 -C "${CONFLUENCE_INSTALL_DIR}" \
