@@ -77,7 +77,6 @@ pipeline {
     }
     post {
         always {
-            steps{
                 script{
                     if (env.Build_Status == true){
                         echo 'I will always run after build!'
@@ -86,7 +85,6 @@ pipeline {
                         println "Build_Status is ${env.Build_Status}"
                     }
                 }
-            }
         }
     }
 }
