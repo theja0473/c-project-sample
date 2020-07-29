@@ -79,7 +79,7 @@ pipeline {
         always {
                 script{
                     if (env.Build_Status == true){
-                        echo 'I will always run after build!'
+                        echo 'I will run when build fails'
                         println "Build_Status is ${env.Build_Status}"
                     }else{
                         println "Build_Status is ${env.Build_Status}"
