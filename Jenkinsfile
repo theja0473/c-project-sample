@@ -64,18 +64,20 @@ pipeline {
         }
         stage('Remove Unused docker image') {
             steps{
-                try{
-                    sh "docker rmi $registry:$BUILD_NUMBER"
-                } catch (err) {
-                    echo err.getMessage()
-                    echo "Error detected, but we will continue."
+                script{
+                    try{
+                        sh "docker rmi $registry:$BUILD_NUMBER"
+                    } catch (err) {
+                        echo err.getMessage()
+                        echo "Error detected, but we will continue."
+                    }
                 }
             }
         }
     }
     post {
         always {
-            if (env.Build_Status){
+            if (${env.Build_Status}){
                 echo 'I will always run after build!'
                 println "Build_Status is ${env.Build_Status}"
             }else{
